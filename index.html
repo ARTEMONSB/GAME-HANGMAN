@@ -1,111 +1,154 @@
 <!DOCTYPE html>
-<html lang="ua">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HANGMAN</title>
-  </head>
-  <body>
-    <canvas id="canvas" width="500" height="500"></canvas>
-    <script>
-      var canvas = document.getElementById("canvas");
-      var ctx = canvas.getContext("2d");
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>HANGMAN!</title>
+</head>
+<body>
+    <canvas id="canvas" width="417" height="200"></canvas>
 
+    <script>
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+
+    var width = canvas.width;
+    var height = canvas.height;
+
+    var pickWord = function () {
       var words = ["лайк", "шлагбаум", "портфоліо", "фотографія", "попкорн", "відео", "рюкзак", "клавіатура"];
 
-      var word = words[Math.floor(Math.random() * words.length)];
+      return words[Math.floor(Math.random() * words.length)];
+    };
 
-      var answerarray = [];
-      for (i = 0; i < word.length; i++) {
-        answerarray[i] = "_";
-      };
+    var setupAnswerArray = function (word) {
+      var answerArray = [];
+      for (var i = 0; i < word.length; i++) {
+        answerArray[i] = "_";
+      }
 
-      var ww = 0;
-      var qqq = 0;
-      var man = 0;
-      var remainingletters = word.length;
-      var remaining = 7;
-      var length = word.length;
+      return answerArray;
+    };
 
-      var r = function (mans) {
-      if (mans === 1) {
-                ctx.lineWidth = 5;
-                ctx.strokeRect(100, 10, 80, 80);
-              } else if (mans === 2) {
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.moveTo(140, 90);
-                ctx.lineTo(140, 240);
-                ctx.stroke();
-              } else if (mans === 3) {
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.moveTo(140, 240);
-                ctx.lineTo(90, 330);
-                ctx.stroke();
-              } else if (mans === 4) {
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.moveTo(140, 240);
-                ctx.lineTo(190, 330);
-                ctx.stroke();
-              } else if (mans === 5) {
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.moveTo(140, 140);
-                ctx.lineTo(85, 120);
-                ctx.stroke();
-              } else if (mans === 6) {
-                ctx.lineWidth = 5;
-                ctx.beginPath();
-                ctx.moveTo(140, 140);
-                ctx.lineTo(195, 120);
-                ctx.stroke();
-              };
-      };
+    var showPlayerProgress = function (answerArray) {
+      alert(answerArray.join(" "));
+    };
 
-      while (remainingletters > 0 && remaining > 0) {
-        r(man);
-        ww = 0;
-        qqq = 0;
-        alert(answerarray.join(" "));
-        
-        var guess = prompt("Введіть букву українською мовою або натисніть Cancel щоб припинити гру!");
-        if (guess === null) {
-          break;
-        } else if (guess.length !== 1) {
-          alert("Так так так, одну букву!");
-        } else {
-          for (j = 0; j < word.length; j++) {
+    var getGuess = function () {
+      return prompt("Введіть букву українською мовою або натисніть Cancel щоб припинити гру!");
+    };
+
+    var updateGameState = function (guess, word, answerArray) {
+      var appearances = 0;
+      for (var j = 0; j < word.length; j++) {
+        if (word[j] === guess) {
+          answerArray[j] = guess;
+          drawCorrectGuess(guess, j);
+          appearances++;
+        }
+      }
+
+      return appearances;
+    };
+
+    var showAnswerAndCongratulatePlayer = function (answerArray) {
+      showPlayerProgress(answerArray);
+      alert("Урааа... Слово було " + wordanswerArray.join("") + "!");
+    };
+
+    var drawSegment = function (incorrectGuesses) {
+      ctx.lineWidth = 4;
+
+      if (incorrectGuesses === 0) {
+        ctx.strokeRect(20, 20, 20, 20);
+      } else if (incorrectGuesses === 1) {
+        ctx.beginPath();
+        ctx.moveTo(30, 40);
+        ctx.lineTo(30, 80);
+        ctx.stroke();
+      } else if (incorrectGuesses === 2) {
+        ctx.beginPath();
+        ctx.moveTo(30, 80);
+        ctx.lineTo(10, 110);
+        ctx.stroke();
+      } else if (incorrectGuesses === 3) {
+        ctx.beginPath();
+        ctx.moveTo(30, 80);
+        ctx.lineTo(50, 110);
+        ctx.stroke();
+      } else if (incorrectGuesses === 4) {
+        ctx.beginPath();
+        ctx.moveTo(30, 60);
+        ctx.lineTo(10, 50);
+        ctx.stroke();
+      } else if (incorrectGuesses === 5) {
+        ctx.beginPath();
+        ctx.moveTo(30, 60);
+        ctx.lineTo(50, 50);
+        ctx.stroke();
+      }
+    };
+
+    // Draw the underscores for the guesses
+    var drawUnderscores = function (howMany) {
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+
+      for (var i = 0; i < howMany; i++) {
+        ctx.moveTo((i * 30) + 10, 160);
+        ctx.lineTo((i * 30) + 30, 160);
+      }
+
+      ctx.stroke();
+    };
+
+    // Draw the correct guess in the appropriate position
+    var drawCorrectGuess = function (guess, index) {
+      ctx.font = "20px Comic Sans MS";
+      ctx.fillText(guess.toUpperCase(), (index * 30) + 10, 150);
+    };
+
+    // Draw the incorrect guess with a line through it in the appropriate position
+    var drawIncorrectGuess = function (guess, index) {
+      ctx.font = "20px Comic Sans MS";
+      ctx.fillText(guess.toUpperCase(), 380, (index * 20) + 40);
+      ctx.moveTo(380, (index * 20) + 30);
+      ctx.lineTo(400, (index * 20) + 30);
+      ctx.stroke();
+    };
+
+    var word = pickWord();
+    var answerArray = setupAnswerArray(word);
+    var remainingLetters = word.length;
+    var incorrectGuesses = 0;
+
+    drawUnderscores(word.length);
+    ctx.strokeRect(0, 0, width, height);
+
+    while (remainingLetters > 0) { showPlayerProgress(answerArray); var guess = getGuess();
+      if (guess === null) {
+        break;
+      } else if (guess.length !== 1) {
+        alert("Так так так, одну букву!");
+      } else {
             if (guess !== "й", "ц", "у", "к", "е", "н", "г", "ш", "щ", "з", "х", "ї", "ф", "і", "в", "а", "п", "р", "о", "л", "д", "ж", "є", "я", "ч", "с", "м", "и", "т", "ь", "б", "ю") {
               guess = guess.toLowerCase();
             };
-            if (word[j] === guess && (answerarray[j] === "_")) {
-              answerarray[j] = guess;
-              remainingletters--;
-              ww++;
-              qqq++;
-            };
-            if (word[j] === guess && (answerarray[j] !== "_")) {
-              ww++;
-              qqq++;
-            };
-          };
-          };
-          if (ww === 0) {
-            man++;
-          };
-          if (qqq === 0) {
-            remaining--;
-          };
-        }; 
-        
-      alert(answerarray.join(" "));
-      if (remainingletters === 0) {
-        alert("Уряяя... Слово було " + word + "!");
-      } else if (remaining === 0) {
-        alert("Ая-яй, ви використали всі свої спроби і не вгадали, тому давайте спочатку! До речі слово було " + word + "!");
-      };
+
+        var correctGuesses = updateGameState(guess, word, answerArray);
+
+        remainingLetters -= correctGuesses;
+
+        if (correctGuesses === 0) {
+          drawSegment(incorrectGuesses);
+          drawIncorrectGuess(guess, incorrectGuesses);
+          incorrectGuesses++;
+        }
+      }
+    }
+
+    showAnswerAndCongratulatePlayer(answerArray);
     </script>
-  </body>
+</body>
 </html>
